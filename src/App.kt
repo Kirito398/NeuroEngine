@@ -1,16 +1,19 @@
 import domain.interactors.MainInteractor
-import java.math.BigDecimal
+import presentation.views.MainView
 
 fun main() {
-    val interactor = MainInteractor()
+    /*val interactor = MainInteractor()
 
     interactor.showNetwork()
 
-    val signal = mutableListOf<BigDecimal>()
+    val signal = mutableListOf<Double>()
 
     for (i in 1 .. 5) {
-        signal.add(BigDecimal(Math.random()))
+        signal.add(Math.random())
     }
 
-    interactor.sendSignal(signal)
+    interactor.sendSignal(signal)*/
+
+    val mainWindow = MainView()
+
 }

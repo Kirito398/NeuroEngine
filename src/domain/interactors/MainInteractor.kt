@@ -1,7 +1,5 @@
 package domain.interactors
 
-import java.math.BigDecimal
-
 class MainInteractor {
     private val networkInteractor = NetworkInteractor()
 
@@ -14,7 +12,7 @@ class MainInteractor {
         networkInteractor.showNetwork()
     }
 
-    fun sendSignal(signal: MutableList<BigDecimal>) {
+    fun sendSignal(signal: MutableList<Double>) {
         val answer = networkInteractor.sendSignal(signal)
 
         println("Answer: ")
