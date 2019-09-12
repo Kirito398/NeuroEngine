@@ -24,11 +24,11 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
 
     override fun onLoadTestSetBtnClicked(rowCount: Int, columnCount: Int) {
         log.info("onLoadTestSetBtnClicked!")
-        resetUIComponents(rowCount, columnCount)
-        view.cleanTable(rowCount, columnCount)
 
         object: SwingWorker<Void, Void>() {
             override fun doInBackground(): Void? {
+                resetUIComponents(rowCount, columnCount)
+                view.cleanTable(rowCount, columnCount)
                 interactor.loadTestingSet(rowCount, columnCount)
                 return null
             }
@@ -41,11 +41,11 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
 
     override fun onLoadTrainingSetBtnClicked(rowCount: Int, columnCount: Int) {
         log.info("onLoadTrainingSetBtnClicked!")
-        resetUIComponents(rowCount, columnCount)
-        view.cleanTable(rowCount, columnCount)
 
         object: SwingWorker<Void, Void>() {
             override fun doInBackground(): Void? {
+                resetUIComponents(rowCount, columnCount)
+                view.cleanTable(rowCount, columnCount)
                 interactor.loadTrainingSet(rowCount, columnCount)
                 return null
             }
@@ -58,10 +58,10 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
 
     override fun onStartBtnClicked(rowCount: Int, columnCount: Int) {
         log.info("onStartBtnClicked!")
-        resetUIComponents(rowCount, columnCount)
 
         object: SwingWorker<Void, Void>() {
             override fun doInBackground(): Void? {
+                resetUIComponents(rowCount, columnCount)
                 interactor.startTesting(rowCount, columnCount)
                 return null
             }
@@ -74,10 +74,10 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
 
     override fun onLearningBtnClicked(rowCount: Int, columnCount: Int) {
         log.info("onLearningBtnClicked!")
-        resetUIComponents(rowCount, columnCount)
 
         object: SwingWorker<Void, Void>() {
             override fun doInBackground(): Void? {
+                resetUIComponents(rowCount, columnCount)
                 interactor.startLearning(rowCount, columnCount)
                 return null
             }

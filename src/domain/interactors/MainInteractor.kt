@@ -31,8 +31,10 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
         val trainingSet = repository.getTrainingSet(rowCount, columnCount)
 
         for ((currentNumberOfSet, currentSet) in trainingSet.withIndex()) {
-            for ((index, image) in currentSet.withIndex())
+            for ((index, image) in currentSet.withIndex()) {
                 sendSignal(makeSignal(image), index, currentNumberOfSet)
+                networkInteractor.learn(index)
+            }
         }
     }
 
@@ -73,23 +75,14 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
     private fun sendSignal(signal: MutableList<Double>, numberOfImage: Int, numberOfSet: Int) {
         val answer = networkInteractor.sendSignal(signal)
 
-        println("Number of set: $numberOfSet, Number of image: $numberOfImage")
+        /*println("Number of set: $numberOfSet, Number of image: $numberOfImage")
         println("Answer: ")
         for (item in answer) {
             print("$item ")
         }
-        print("\n")
+        print("\n")*/
 
-        var max = 0.0
-        var maxI = 0
-        for ((index, item) in answer.withIndex()) {
-            if (item > max) {
-                max = item
-                maxI = index
-            }
-        }
-
-        mainPresenterListener?.onAnswerReturned(maxI, numberOfImage, numberOfSet)
+        mainPresenterListener?.onAnswerReturned(answer, numberOfImage, numberOfSet)
     }
 
     private fun makeSignal(image: BufferedImage): MutableList<Double> {
