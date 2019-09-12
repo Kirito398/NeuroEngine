@@ -1,3 +1,4 @@
+import data.repositories.MainRepository
 import domain.interactors.MainInteractor
 import presentation.views.MainView
 
@@ -14,6 +15,6 @@ fun main() {
 
     interactor.sendSignal(signal)*/
 
-    val mainWindow = MainView()
-
+    val mainRepository = MainRepository()
+    val mainWindow = MainView(MainInteractor(mainRepository))
 }
