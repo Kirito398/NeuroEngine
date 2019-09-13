@@ -48,6 +48,7 @@ class MainRepository() : MainViewInterface.Repository {
             val set = loadSetByNumber(path, columnCount, currentNumberOfSet)
             mainRepositoryListener?.updateProgressBar(columnCount * currentNumberOfSet)
             mainRepositoryListener?.onLoadedSet(set)
+            mainRepositoryListener?.loadedSetCount(currentNumberOfSet, rowCount)
             loadedSets.add(set)
         }
 

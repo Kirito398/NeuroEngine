@@ -14,15 +14,16 @@ interface MainViewInterface {
         fun onLoadedSet(set: List<BufferedImage>)
         fun updateTableItem(numberOfSet: Int, numberOfImage: Int, answer: String, isCorrect: Boolean)
         fun eraseTableColor()
+        fun setStatusText(text: String)
     }
 
     interface Presenter {
         fun setView (view: View)
-        fun init()
-        fun onStartBtnClicked(rowCount: Int, columnCount: Int)
-        fun onLearningBtnClicked(rowCount: Int, columnCount: Int)
-        fun onLoadTestSetBtnClicked(rowCount: Int, columnCount: Int)
-        fun onLoadTrainingSetBtnClicked(rowCount: Int, columnCount: Int)
+        fun init(testSetSize: Int, trainingSetSize: Int, classesCount: Int)
+        fun onStartBtnClicked(eraCount: Int, epsilon: Double, alpha: Double)
+        fun onLearningBtnClicked(eraCount: Int, epsilon: Double, alpha: Double)
+        fun onLoadTestSetBtnClicked()
+        fun onLoadTrainingSetBtnClicked()
         fun onExitBtnClicked()
     }
 

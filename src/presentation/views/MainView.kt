@@ -10,6 +10,14 @@ import javax.swing.*
 class MainView(interactor: MainInteractor) : MainViewInterface.View {
     private val presenter: MainViewInterface.Presenter = MainPresenter(interactor)
     private val tableItems = mutableListOf<MutableList<JLabel>>()
+    private var epsilonCount = 0.2
+    private var alphaCount = 0.0
+    private var eraCount = 1
+    private var testSetSize = 140
+    private var trainingSetSize = 2100
+    private var classesCount = 26
+    private var currentSetSize = 140
+
     private lateinit var tablePanel: JPanel
     private lateinit var tableScroll: JScrollPane
     private lateinit var controlPanel: JPanel
@@ -22,10 +30,17 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
     private lateinit var loadTestSetBtn: JButton
     private lateinit var loadTrainingSetBtn: JButton
     private lateinit var exitBtn: JButton
+    private lateinit var eraCountLabel: JLabel
+    private lateinit var epsilonCountLabel: JLabel
+    private lateinit var alphaCountLabel: JLabel
+    private lateinit var statusTextLabel: JLabel
+    private lateinit var epsilonCountTextField: JTextField
+    private lateinit var alphaCountTextField: JTextField
+    private lateinit var eraCountTextField: JTextField
 
     init {
         presenter.setView(this)
-        presenter.init()
+        presenter.init(testSetSize, trainingSetSize, classesCount)
     }
 
     override fun createGUI() {
@@ -39,17 +54,33 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
         loadTrainingSetBtn = JButton("Загрузить тренировочный набор")
         exitBtn = JButton("Выход")
 
+        epsilonCountLabel = JLabel("Скорость обучения:")
+        alphaCountLabel = JLabel("Момент обучения:")
+        eraCountLabel = JLabel("Количество эпох:")
+        statusTextLabel = JLabel("")
+
+        epsilonCountTextField = JTextField(epsilonCount.toString())
+        alphaCountTextField = JTextField(alphaCount.toString())
+        eraCountTextField = JTextField(eraCount.toString())
+
         controlPanel = JPanel()
-        controlPanel.layout = GridLayout(25, 1, 5, 5)
+        controlPanel.layout = GridLayout(classesCount - 1, 1, 5, 5)
         controlPanel.add(startBtn)
         controlPanel.add(learningBtn)
         controlPanel.add(loadTestSetBtn)
         controlPanel.add(loadTrainingSetBtn)
+        controlPanel.add(epsilonCountLabel)
+        controlPanel.add(epsilonCountTextField)
+        controlPanel.add(alphaCountLabel)
+        controlPanel.add(alphaCountTextField)
+        controlPanel.add(eraCountLabel)
+        controlPanel.add(eraCountTextField)
         controlPanel.add(exitBtn)
 
         progressBar = JProgressBar()
         progressPanel = JPanel()
-        progressPanel.layout = GridLayout(1,1,5,5)
+        progressPanel.layout = GridLayout(2,1,5,5)
+        progressPanel.add(statusTextLabel)
         progressPanel.add(progressBar)
 
         mainPanel = JPanel()
@@ -68,10 +99,24 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
     }
 
     override fun setListeners() {
-        startBtn.addActionListener {presenter.onStartBtnClicked(140, 26)}
-        learningBtn.addActionListener {presenter.onLearningBtnClicked(2100, 26)}
-        loadTestSetBtn.addActionListener {presenter.onLoadTestSetBtnClicked(140, 26)}
-        loadTrainingSetBtn.addActionListener {presenter.onLoadTrainingSetBtnClicked(2100, 26)}
+        startBtn.addActionListener {
+            eraCount = eraCountTextField.text.toInt()
+            epsilonCount = epsilonCountTextField.text.toDouble()
+            alphaCount = alphaCountTextField.text.toDouble()
+            currentSetSize = testSetSize
+            presenter.onStartBtnClicked(eraCount, epsilonCount, alphaCount)
+        }
+
+        learningBtn.addActionListener {
+            eraCount = eraCountTextField.text.toInt()
+            epsilonCount = epsilonCountTextField.text.toDouble()
+            alphaCount = alphaCountTextField.text.toDouble()
+            currentSetSize = trainingSetSize
+            presenter.onLearningBtnClicked(eraCount, epsilonCount, alphaCount)
+        }
+
+        loadTestSetBtn.addActionListener {presenter.onLoadTestSetBtnClicked()}
+        loadTrainingSetBtn.addActionListener {presenter.onLoadTrainingSetBtnClicked()}
         exitBtn.addActionListener {presenter.onExitBtnClicked()}
     }
 
@@ -92,6 +137,9 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
         loadTrainingSetBtn.isEnabled = enable
         loadTestSetBtn.isEnabled = enable
         exitBtn.isEnabled = enable
+        eraCountTextField.isEnabled = enable
+        epsilonCountTextField.isEnabled = enable
+        alphaCountTextField.isEnabled = enable
     }
 
     override fun updateBar(newValue: Int) {
@@ -118,14 +166,16 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
         item.text = answer
         item.background = if (isCorrect) Color.GREEN else Color.RED
 
-        tableScroll.verticalScrollBar.value = tableScroll.verticalScrollBar.maximum / 140 * numberOfSet
+        //tableScroll.verticalScrollBar.value = tableScroll.verticalScrollBar.maximum / currentSetSize * numberOfSet
     }
 
     override fun eraseTableColor() {
-        for (row in tableItems) {
-            for (item in row) {
+        for (row in tableItems)
+            for (item in row)
                 item.background = Color.WHITE
-            }
-        }
+    }
+
+    override fun setStatusText(text: String) {
+        statusTextLabel.text = text
     }
 }

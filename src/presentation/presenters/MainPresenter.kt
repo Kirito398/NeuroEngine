@@ -11,25 +11,31 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
     private val log = Logger.getLogger("MainPresenter")
     private val stringAnswer = arrayListOf("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","W","Z")
     private lateinit var view: MainViewInterface.View
+    private var testSetSize = 0
+    private var trainingSetSize = 0
+    private var classesCount = 0
 
     override fun setView(view: MainViewInterface.View) {
         this.view = view
     }
 
-    override fun init() {
+    override fun init(testSetSize: Int, trainingSetSize: Int, classesCount: Int) {
+        this.testSetSize = testSetSize
+        this.trainingSetSize = trainingSetSize
+        this.classesCount = classesCount
         view.createGUI()
         view.setListeners()
         interactor.setMainPresenterListener(this)
     }
 
-    override fun onLoadTestSetBtnClicked(rowCount: Int, columnCount: Int) {
+    override fun onLoadTestSetBtnClicked() {
         log.info("onLoadTestSetBtnClicked!")
 
         object: SwingWorker<Void, Void>() {
             override fun doInBackground(): Void? {
-                resetUIComponents(rowCount, columnCount)
-                view.cleanTable(rowCount, columnCount)
-                interactor.loadTestingSet(rowCount, columnCount)
+                resetUIComponents(testSetSize, classesCount)
+                view.cleanTable(testSetSize, classesCount)
+                interactor.loadTestingSet(testSetSize, classesCount)
                 return null
             }
 
@@ -39,14 +45,14 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
         }.execute()
     }
 
-    override fun onLoadTrainingSetBtnClicked(rowCount: Int, columnCount: Int) {
+    override fun onLoadTrainingSetBtnClicked() {
         log.info("onLoadTrainingSetBtnClicked!")
 
         object: SwingWorker<Void, Void>() {
             override fun doInBackground(): Void? {
-                resetUIComponents(rowCount, columnCount)
-                view.cleanTable(rowCount, columnCount)
-                interactor.loadTrainingSet(rowCount, columnCount)
+                resetUIComponents(trainingSetSize, classesCount)
+                view.cleanTable(trainingSetSize, classesCount)
+                interactor.loadTrainingSet(trainingSetSize, classesCount)
                 return null
             }
 
@@ -56,13 +62,16 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
         }.execute()
     }
 
-    override fun onStartBtnClicked(rowCount: Int, columnCount: Int) {
+    override fun onStartBtnClicked(eraCount: Int, epsilon: Double, alpha: Double) {
         log.info("onStartBtnClicked!")
+        interactor.setEraCount(eraCount)
+        interactor.setEpsilon(epsilon)
+        interactor.setAlpha(alpha)
 
         object: SwingWorker<Void, Void>() {
             override fun doInBackground(): Void? {
-                resetUIComponents(rowCount, columnCount)
-                interactor.startTesting(rowCount, columnCount)
+                resetUIComponents(testSetSize, classesCount)
+                interactor.startTesting(testSetSize, classesCount)
                 return null
             }
 
@@ -72,13 +81,16 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
         }.execute()
     }
 
-    override fun onLearningBtnClicked(rowCount: Int, columnCount: Int) {
+    override fun onLearningBtnClicked(eraCount: Int, epsilon: Double, alpha: Double) {
         log.info("onLearningBtnClicked!")
+        interactor.setEraCount(eraCount)
+        interactor.setEpsilon(epsilon)
+        interactor.setAlpha(alpha)
 
         object: SwingWorker<Void, Void>() {
             override fun doInBackground(): Void? {
-                resetUIComponents(rowCount, columnCount)
-                interactor.startLearning(rowCount, columnCount)
+                resetUIComponents(trainingSetSize, classesCount)
+                interactor.startLearning(trainingSetSize, classesCount)
                 return null
             }
 
@@ -101,12 +113,33 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
         view.onLoadedSet(set)
     }
 
-    override fun onAnswerReturned(answer: Int, numberOfImage: Int, numberOfSet: Int) {
-        view.updateTableItem(numberOfSet, numberOfImage, getStringAnswer(answer), answer == numberOfImage)
-    }
-
     override fun cleanTable(rowCount: Int, columnCount: Int) {
         view.cleanTable(rowCount, columnCount)
+    }
+
+    override fun onNewLayerAdded(addedLayerNumber: Int) {
+        view.setStatusText("Добавлен новый слой, номер: $addedLayerNumber")
+    }
+
+    override fun currentLayer(currentLayerNumber: Int) {
+        //view.setStatusText("Текущий слой: $currentLayerNumber")
+    }
+
+    override fun networkAnswer(answer: Int, currentNumberOfImage: Int, currentNumberOfSet: Int) {
+        view.updateTableItem(currentNumberOfSet, currentNumberOfImage, getStringAnswer(answer), answer == currentNumberOfImage)
+    }
+
+    override fun onEraChanged(currentEraNumber: Int) {
+        view.eraseTableColor()
+        view.setStatusText("Текущая эпоха: $currentEraNumber")
+    }
+
+    override fun loadSetCount(count: Int, setSize: Int) {
+        view.setStatusText("Загрузка сета $count из $setSize")
+    }
+
+    override fun onSetChanged(currentSetNumber: Int, setSize: Int) {
+        view.setStatusText("Текущий сет ${currentSetNumber + 1} из $setSize")
     }
 
     private fun getStringAnswer(answer: Int): String {
