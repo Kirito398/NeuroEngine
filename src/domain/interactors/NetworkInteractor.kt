@@ -5,8 +5,10 @@ import kotlin.math.exp
 
 class NetworkInteractor {
     private val layers = mutableListOf<MutableList<NeuronModel>>()
-    private val E = 0.7
-    private val A = 0.0
+    private val E = 0.2
+    private val A = 0.1
+
+    var inputSignal = mutableListOf<Double>()
     var currentSignal = mutableListOf<Double>()
     var networkAnswer = 0
 
@@ -20,6 +22,7 @@ class NetworkInteractor {
     }
 
     fun sendSignal(signal: MutableList<Double>): Int {
+        inputSignal = signal
         currentSignal = signal
 
         for (layer in layers)
@@ -29,14 +32,39 @@ class NetworkInteractor {
         return networkAnswer
     }
 
-    fun learn(idealAnswer: Int) {
-        val deltaOut = (idealAnswer - networkAnswer) * (1.0 - networkAnswer) * networkAnswer
+    fun learn(idealAnswer: Double) {
+        val deltaOut = (idealAnswer - currentSignal[networkAnswer]) * (1.0 - currentSignal[networkAnswer]) * currentSignal[networkAnswer]
 
         for (neuron in layers.last()) {
             val grad = neuron.value * deltaOut
             val deltaWeight = E * grad + A * neuron.delta
             neuron.delta = ((1 - neuron.value) * neuron.value) * (neuron.getWeights()[networkAnswer] * deltaOut)
             neuron.getWeights()[networkAnswer] += deltaWeight
+        }
+
+        for (layer in layers.size - 2 until 0) {
+            println("Layer: $layer")
+            for (neuron in layers[layer]) {
+                val proizv = (1 - neuron.value) * neuron.value
+                var summ = 0.0
+                var grad: Double
+                for ((index, weight) in neuron.getWeights().withIndex()) {
+                    val nextNeuron = layers[layer + 1][index]
+                    summ += (weight * nextNeuron.delta)
+                    grad = neuron.value * nextNeuron.delta
+                    val deltaWeight = E * grad + A * neuron.delta
+                    neuron.getWeights()[index] += deltaWeight
+                }
+                neuron.delta = proizv * summ
+            }
+        }
+
+        for ((index, signal) in inputSignal.withIndex()) {
+            for (neuron in layers.first()) {
+                val grad = signal * neuron.delta
+                val deltaWeight = E * grad
+                neuron.getWeights()[index] += deltaWeight
+            }
         }
     }
 

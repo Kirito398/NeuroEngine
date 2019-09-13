@@ -21,9 +21,9 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
     }
 
     init {
-        networkInteractor.addLayer(100,784)
-        networkInteractor.addLayer(50, 100)
-        networkInteractor.addLayer(26, 50)
+        networkInteractor.addLayer(800,784)
+        networkInteractor.addLayer(400, 800)
+        networkInteractor.addLayer(26, 400)
         repository.setMainRepositoryListener(this)
     }
 
@@ -32,8 +32,8 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
 
         for ((currentNumberOfSet, currentSet) in trainingSet.withIndex()) {
             for ((index, image) in currentSet.withIndex()) {
-                sendSignal(makeSignal(image), index, currentNumberOfSet)
-                networkInteractor.learn(index)
+                val answer = sendSignal(makeSignal(image), index, currentNumberOfSet)
+                networkInteractor.learn(if (answer == index) 1.0 else 0.0)
             }
         }
     }
@@ -72,7 +72,7 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
         mainPresenterListener?.cleanTable(rowCount, columnCount)
     }
 
-    private fun sendSignal(signal: MutableList<Double>, numberOfImage: Int, numberOfSet: Int) {
+    private fun sendSignal(signal: MutableList<Double>, numberOfImage: Int, numberOfSet: Int): Int {
         val answer = networkInteractor.sendSignal(signal)
 
         /*println("Number of set: $numberOfSet, Number of image: $numberOfImage")
@@ -83,6 +83,7 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
         print("\n")*/
 
         mainPresenterListener?.onAnswerReturned(answer, numberOfImage, numberOfSet)
+        return answer
     }
 
     private fun makeSignal(image: BufferedImage): MutableList<Double> {

@@ -117,6 +117,8 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
         val item = tableItems[numberOfSet][numberOfImage]
         item.text = answer
         item.background = if (isCorrect) Color.GREEN else Color.RED
+
+        tableScroll.verticalScrollBar.value = tableScroll.verticalScrollBar.maximum / 140 * numberOfSet
     }
 
     override fun eraseTableColor() {
