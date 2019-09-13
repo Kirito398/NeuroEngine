@@ -8,9 +8,9 @@ class NetworkInteractor {
     private val E = 0.2
     private val A = 0.1
 
-    var inputSignal = mutableListOf<Double>()
-    var currentSignal = mutableListOf<Double>()
-    var networkAnswer = 0
+    private var inputSignal = mutableListOf<Double>()
+    private var currentSignal = mutableListOf<Double>()
+    private var networkAnswer = 0
 
     fun addLayer(neuronCount: Int, inputSignalCount: Int) {
         val newLayer = mutableListOf<NeuronModel>()
@@ -66,22 +66,6 @@ class NetworkInteractor {
                 neuron.getWeights()[index] += deltaWeight
             }
         }
-    }
-
-    fun showNetwork() {
-        for ((layerIndex, layer) in layers.withIndex()) {
-            println("Layer $layerIndex ---------------------------------> ")
-            for ((neuronIndex, neuron) in layer.withIndex()) {
-                println("Neuron $neuronIndex:")
-                showNeuron(neuron)
-            }
-        }
-    }
-
-    fun showNeuron(neuron: NeuronModel) {
-        for (item in neuron.getWeights())
-            print("$item ")
-        print("\n")
     }
 
     private fun calculateSignalFromLayer(signal: MutableList<Double>, layer: MutableList<NeuronModel>): MutableList<Double> {

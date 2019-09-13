@@ -10,16 +10,6 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
     private val networkInteractor = NetworkInteractor()
     private var mainPresenterListener: MainPresenterListener? = null
 
-    companion object {
-        private var instance: MainInteractor? = null
-
-        fun getInstance(repository: MainViewInterface.Repository): MainInteractor {
-            if (instance == null)
-                instance = MainInteractor(repository)
-            return instance!!
-        }
-    }
-
     init {
         networkInteractor.addLayer(800,784)
         networkInteractor.addLayer(400, 800)
