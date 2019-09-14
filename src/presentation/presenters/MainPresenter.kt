@@ -140,6 +140,11 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
 
     override fun onSetChanged(currentSetNumber: Int, setSize: Int) {
         view.setStatusText("Текущий сет ${currentSetNumber + 1} из $setSize")
+        view.updateBar(currentSetNumber + 1)
+    }
+
+    override fun onProcessStart(setSize: Int) {
+        view.setBarSize(0, setSize)
     }
 
     private fun getStringAnswer(answer: Int): String {
@@ -147,7 +152,7 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
     }
 
     private fun resetUIComponents(rowCount: Int, columnCount: Int) {
-        view.resetProgressBar(rowCount * columnCount, 0)
+        view.setBarSize(0, rowCount * columnCount)
         view.enableButtons(false)
         view.eraseTableColor()
     }

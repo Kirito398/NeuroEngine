@@ -20,6 +20,19 @@ class NetworkInteractor {
     private var currentSignal = mutableListOf<Double>()
     private var networkAnswer = 0
 
+    init {
+        /*val neuron1 = NeuronModel(2)
+        val neuron2 = NeuronModel(2)
+        val neuron3 = NeuronModel(2)
+
+        neuron1.setWeight(mutableListOf(0.45, -0.12))
+        neuron2.setWeight(mutableListOf(0.78, 0.13))
+        neuron3.setWeight(mutableListOf(1.5, -2.3))
+
+        layers.add(mutableListOf(neuron1, neuron2))
+        layers.add(mutableListOf(neuron3))*/
+    }
+
     fun setNetworkProcessListener(listener: NetworkProcessListener) {
         this.listener = listener
     }
@@ -35,9 +48,9 @@ class NetworkInteractor {
         layers.add(newLayer)
     }
 
-    fun sendSignal(signal: BufferedImage): Int {
-        inputSignal = makeSignal(signal)
-        currentSignal = inputSignal
+    fun sendSignal(signal: MutableList<Double>): Int {
+        inputSignal = signal
+        currentSignal = signal
 
         for ((index, layer) in layers.withIndex()) {
             currentSignal = calculateSignalFromLayer(currentSignal, layer)
@@ -48,18 +61,22 @@ class NetworkInteractor {
         return networkAnswer
     }
 
-    fun learn(trainingSet: List<List<BufferedImage>>) {
+    fun startLearn(trainingSet: List<List<BufferedImage>>) {
+        listener?.onProcessStart(trainingSet.size)
         for (era in 1 .. eraCount) {
             listener?.onEraChanged(era)
             for ((currentNumberOfSet, currentSet) in trainingSet.withIndex()) {
                 listener?.onSetChanged(currentNumberOfSet, trainingSet.size)
                 for ((currentNumberOfImage, image) in currentSet.withIndex()) {
-                    val answer = sendSignal(image)
+                    val answer = sendSignal(makeSignal(image))
                     listener?.networkAnswer(answer, currentNumberOfImage, currentNumberOfSet)
                     learn(if (answer == currentNumberOfImage) 1.0 else 0.0)
                 }
             }
         }
+
+        //sendSignal(mutableListOf(1.0, 0.0))
+        //learn(1.0)
     }
 
     fun setEraCount(count: Int) {
@@ -80,34 +97,42 @@ class NetworkInteractor {
     private fun learn(idealAnswer: Double) {
         val deltaOut = (idealAnswer - currentSignal[networkAnswer]) * (1.0 - currentSignal[networkAnswer]) * currentSignal[networkAnswer]
 
-        for (neuron in layers.last()) {
+        val studentNeuron = layers.last()[networkAnswer]
+        for ((index, neuron) in layers[layers.size - 2].withIndex()) {
             val grad = neuron.value * deltaOut
-            val deltaWeight = E * grad + A * neuron.delta
-            neuron.delta = ((1 - neuron.value) * neuron.value) * (neuron.getWeights()[networkAnswer] * deltaOut)
-            neuron.getWeights()[networkAnswer] += deltaWeight
+            val deltaWeight = E * grad + A * studentNeuron.getDeltaWeights()[index]
+            studentNeuron.getDeltaWeights()[index] = deltaWeight
+            neuron.delta = ((1 - neuron.value) * neuron.value) * (studentNeuron.getWeights()[index] * deltaOut)
+            studentNeuron.updateWeight(deltaWeight, index)
         }
 
         for (layer in layers.size - 2 until 0) {
-            for (neuron in layers[layer]) {
-                val proizv = (1 - neuron.value) * neuron.value
-                var summ = 0.0
-                var grad: Double
-                for ((index, weight) in neuron.getWeights().withIndex()) {
-                    val nextNeuron = layers[layer + 1][index]
-                    summ += (weight * nextNeuron.delta)
-                    grad = neuron.value * nextNeuron.delta
-                    val deltaWeight = E * grad + A * neuron.delta
-                    neuron.getWeights()[index] += deltaWeight
+            for (neuron in layers[layer - 1]) {
+                neuron.delta = 0.0
+            }
+
+            for (studentNeuron in layers[layer]) {
+                for ((index, neuron) in layers[layer - 1].withIndex()) {
+                    val grad = neuron.value * studentNeuron.delta
+                    val deltaWeight = E * grad + A * studentNeuron.getDeltaWeights()[index]
+                    studentNeuron.getDeltaWeights()[index] = deltaWeight
+                    neuron.delta += ((1 - neuron.value) * neuron.value) * (studentNeuron.getWeights()[index] * studentNeuron.delta)
+                    studentNeuron.updateWeight(deltaWeight, index)
                 }
-                neuron.delta = proizv * summ
+            }
+
+            val size = layers[layer].size
+            for (neuron in layers[layer - 1]) {
+                neuron.delta /= size
             }
         }
 
-        for ((index, signal) in inputSignal.withIndex()) {
-            for (neuron in layers.first()) {
-                val grad = signal * neuron.delta
-                val deltaWeight = E * grad
-                neuron.getWeights()[index] += deltaWeight
+        for (studentNeuron in layers.first()) {
+            for ((index, signal) in inputSignal.withIndex()) {
+                val grad = signal * studentNeuron.delta
+                val deltaWeight = E * grad + A * studentNeuron.getDeltaWeights()[index]
+                studentNeuron.getDeltaWeights()[index] = deltaWeight
+                studentNeuron.updateWeight(deltaWeight, index)
             }
         }
     }
@@ -129,7 +154,7 @@ class NetworkInteractor {
         for (i in 0 until length)
             result += signal[i] * weights[i]
 
-        neuron.value = activateFunction(result)
+        neuron.value = activateFunction(result / length)
 
         return neuron.value
     }
@@ -151,17 +176,19 @@ class NetworkInteractor {
         listener?.networkAnswer(networkAnswer)
     }
 
-    private fun makeSignal(image: BufferedImage): MutableList<Double> {
-        val signal = mutableListOf<Double>()
+    companion object {
+        fun makeSignal(image: BufferedImage): MutableList<Double> {
+            val signal = mutableListOf<Double>()
 
-        for (x in 0 until image.width) {
-            for (y in 0 until image.height) {
-                val color = Color(image.getRGB(x, y))
-                val pixel = (color.red + color.green + color.blue) / 3.0
-                signal.add(if (pixel != 0.0) 1.0 / pixel else pixel)
+            for (x in 0 until image.width) {
+                for (y in 0 until image.height) {
+                    val color = Color(image.getRGB(x, y))
+                    val pixel = (color.red + color.green + color.blue) / 3.0
+                    signal.add(if (pixel != 0.0) 1.0 / pixel else pixel)
+                }
             }
-        }
 
-        return signal
+            return signal
+        }
     }
 }

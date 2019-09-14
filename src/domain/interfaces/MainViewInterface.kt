@@ -8,13 +8,13 @@ interface MainViewInterface {
         fun createGUI()
         fun setListeners()
         fun cleanTable(newRowsCount: Int, newColumnCount: Int)
-        fun resetProgressBar(max: Int, min: Int)
         fun enableButtons(enable: Boolean)
         fun updateBar(newValue: Int)
         fun onLoadedSet(set: List<BufferedImage>)
         fun updateTableItem(numberOfSet: Int, numberOfImage: Int, answer: String, isCorrect: Boolean)
         fun eraseTableColor()
         fun setStatusText(text: String)
+        fun setBarSize(min: Int, max: Int)
     }
 
     interface Presenter {

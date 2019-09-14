@@ -10,8 +10,8 @@ import javax.swing.*
 class MainView(interactor: MainInteractor) : MainViewInterface.View {
     private val presenter: MainViewInterface.Presenter = MainPresenter(interactor)
     private val tableItems = mutableListOf<MutableList<JLabel>>()
-    private var epsilonCount = 0.2
-    private var alphaCount = 0.0
+    private var epsilonCount = 0.7
+    private var alphaCount = 0.3
     private var eraCount = 1
     private var testSetSize = 140
     private var trainingSetSize = 2100
@@ -126,11 +126,6 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
         tableItems.clear()
     }
 
-    override fun resetProgressBar(max: Int, min: Int) {
-        progressBar.minimum = min
-        progressBar.maximum = max
-    }
-
     override fun enableButtons(enable: Boolean) {
         startBtn.isEnabled = enable
         learningBtn.isEnabled = enable
@@ -177,5 +172,11 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
 
     override fun setStatusText(text: String) {
         statusTextLabel.text = text
+    }
+
+    override fun setBarSize(min: Int, max: Int) {
+        progressBar.minimum = min
+        progressBar.maximum = max
+        progressBar.value = min
     }
 }

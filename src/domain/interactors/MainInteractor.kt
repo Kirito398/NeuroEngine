@@ -4,7 +4,6 @@ import domain.interfaces.MainViewInterface
 import domain.listeners.MainPresenterListener
 import domain.listeners.MainRepositoryListener
 import domain.listeners.NetworkProcessListener
-import java.awt.Color
 import java.awt.image.BufferedImage
 
 class MainInteractor(private val repository: MainViewInterface.Repository) : MainRepositoryListener, NetworkProcessListener{
@@ -16,28 +15,30 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
     init {
         networkInteractor.setNetworkProcessListener(this)
         repository.setMainRepositoryListener(this)
-        //networkInteractor.addLayer(4, 625)
-        //networkInteractor.addLayer(10, 4)
-        networkInteractor.addLayer(800,625)
-        networkInteractor.addLayer(400, 800)
-        networkInteractor.addLayer(26, 400)
+        networkInteractor.addLayer(200,625)
+        //networkInteractor.addLayer(400, 800)
+        networkInteractor.addLayer(26, 200)
     }
 
     fun startLearning(rowCount: Int, columnCount: Int) {
-        networkInteractor.learn(repository.getTrainingSet(rowCount, columnCount))
+        networkInteractor.startLearn(repository.getTrainingSet(rowCount, columnCount))
+        //networkInteractor.startLearn(listOf<List<BufferedImage>>())
     }
 
     fun startTesting(rowCount: Int, columnCount: Int) {
         val testSets = repository.getTestingSet(rowCount, columnCount)
+        mainPresenterListener?.onProcessStart(testSets.size)
 
         for ((setIndex, currentSet) in testSets.withIndex()) {
             currentNumberOfSet = setIndex
             mainPresenterListener?.onSetChanged(setIndex, testSets.size)
             for ((imageIndex, image) in currentSet.withIndex()) {
                 currentNumberOfImage = imageIndex
-                networkInteractor.sendSignal(image)
+                networkInteractor.sendSignal(NetworkInteractor.makeSignal(image))
             }
         }
+
+        //networkInteractor.sendSignal(mutableListOf(1.0, 0.0))
     }
 
     fun setMainPresenterListener(listener: MainPresenterListener) {
@@ -103,5 +104,9 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
 
     override fun onSetChanged(currentSetNumber: Int, setSize: Int) {
         mainPresenterListener?.onSetChanged(currentSetNumber, setSize)
+    }
+
+    override fun onProcessStart(setSize: Int) {
+        mainPresenterListener?.onProcessStart(setSize)
     }
 }
