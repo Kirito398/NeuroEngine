@@ -1,9 +1,11 @@
 package domain.interactors
 
+import domain.interfaces.MainViewInterface
 import domain.listeners.NetworkProcessListener
 import domain.models.NeuronModel
 import java.awt.Color
 import java.awt.image.BufferedImage
+import java.io.File
 import java.util.logging.Logger
 import kotlin.math.exp
 
@@ -46,6 +48,10 @@ class NetworkInteractor {
         }
 
         layers.add(newLayer)
+    }
+
+    fun addLayer(layer: MutableList<NeuronModel>) {
+        layers.add(layer)
     }
 
     fun sendSignal(signal: MutableList<Double>): Int {
@@ -92,6 +98,18 @@ class NetworkInteractor {
     fun setAlpha(alpha: Double) {
         log.info("Alpha changed: $alpha")
         A = alpha
+    }
+
+    fun save(repository: MainViewInterface.Repository) {
+        repository.save(layers, E, A)
+        log.info("Saved!")
+    }
+
+    fun clearLayers() {
+        for (layer in layers) {
+            layer.clear()
+        }
+        layers.clear()
     }
 
     private fun learn(idealAnswer: Double) {
@@ -159,9 +177,7 @@ class NetworkInteractor {
         return neuron.value
     }
 
-    private fun activateFunction(x: Double): Double {
-        return 1.0 / (1.0 + exp(-x))
-    }
+    private fun activateFunction(x: Double): Double  = 1.0 / (1.0 + exp(-x))
 
     private fun getNetworkAnswer() {
         var max = 0.0

@@ -7,4 +7,5 @@ interface MainPresenterListener : NetworkProcessListener {
     fun onLoadedSet(set: List<BufferedImage>)
     fun loadSetCount(count: Int, setSize: Int)
     fun cleanTable(rowCount: Int, columnCount: Int)
+    fun onLoadedNeuronWeb()
 }

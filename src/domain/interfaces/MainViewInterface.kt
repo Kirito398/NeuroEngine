@@ -1,6 +1,7 @@
 package domain.interfaces
 
 import domain.listeners.MainRepositoryListener
+import domain.models.NeuronModel
 import java.awt.image.BufferedImage
 
 interface MainViewInterface {
@@ -15,6 +16,9 @@ interface MainViewInterface {
         fun eraseTableColor()
         fun setStatusText(text: String)
         fun setBarSize(min: Int, max: Int)
+        fun setErrorValue(value: String)
+        fun setPrevErrorValue(value: String)
+        fun setCurrentEra(value: String)
     }
 
     interface Presenter {
@@ -25,6 +29,8 @@ interface MainViewInterface {
         fun onLoadTestSetBtnClicked()
         fun onLoadTrainingSetBtnClicked()
         fun onExitBtnClicked()
+        fun onSaveBtnClicked()
+        fun onLoadBtnClicked()
     }
 
     interface Repository {
@@ -33,5 +39,7 @@ interface MainViewInterface {
         fun getTrainingSet(rowCount: Int, columnCount: Int): List<List<BufferedImage>>
         fun loadTestingSet(rowCount: Int, columnCount: Int)
         fun getTestingSet(rowCount: Int, columnCount: Int): List<List<BufferedImage>>
+        fun save(layers: List<List<NeuronModel>>, epsilon: Double, alpha: Double)
+        fun load()
     }
 }

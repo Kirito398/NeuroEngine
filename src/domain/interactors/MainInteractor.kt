@@ -4,6 +4,7 @@ import domain.interfaces.MainViewInterface
 import domain.listeners.MainPresenterListener
 import domain.listeners.MainRepositoryListener
 import domain.listeners.NetworkProcessListener
+import domain.models.NeuronModel
 import java.awt.image.BufferedImage
 
 class MainInteractor(private val repository: MainViewInterface.Repository) : MainRepositoryListener, NetworkProcessListener{
@@ -15,9 +16,9 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
     init {
         networkInteractor.setNetworkProcessListener(this)
         repository.setMainRepositoryListener(this)
-        networkInteractor.addLayer(200,625)
-        //networkInteractor.addLayer(400, 800)
-        networkInteractor.addLayer(26, 200)
+        networkInteractor.addLayer(500,625)
+        networkInteractor.addLayer(250, 500)
+        networkInteractor.addLayer(26, 500)
     }
 
     fun startLearning(rowCount: Int, columnCount: Int) {
@@ -65,6 +66,14 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
         networkInteractor.setEraCount(eraCount)
     }
 
+    fun saveNeuronWeb() {
+        networkInteractor.save(repository)
+    }
+
+    fun loadNeuronWeb() {
+        repository.load()
+    }
+
     /** MainRepositoryListener **/
     override fun updateProgressBar(newValue: Int) {
         mainPresenterListener?.updateProgressBar(newValue)
@@ -80,6 +89,19 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
 
     override fun loadedSetCount(count: Int, setSize: Int) {
         mainPresenterListener?.loadSetCount(count, setSize)
+    }
+
+    override fun onLoadedNeuronWeb(epsilon: Double, alpha: Double, layers: MutableList<MutableList<NeuronModel>>) {
+        networkInteractor.setEpsilon(epsilon)
+        networkInteractor.setAlpha(alpha)
+
+        networkInteractor.clearLayers()
+
+        for (layer in layers) {
+            networkInteractor.addLayer(layer)
+        }
+
+        mainPresenterListener?.onLoadedNeuronWeb()
     }
 
     /** NetworkProcessListener **/

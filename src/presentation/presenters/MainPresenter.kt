@@ -6,6 +6,7 @@ import domain.listeners.MainPresenterListener
 import java.awt.image.BufferedImage
 import java.util.logging.Logger
 import javax.swing.SwingWorker
+import kotlin.math.roundToInt
 
 class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presenter, MainPresenterListener{
     private val log = Logger.getLogger("MainPresenter")
@@ -14,6 +15,10 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
     private var testSetSize = 0
     private var trainingSetSize = 0
     private var classesCount = 0
+    private var correctAnswerCount = 0
+    private var answerCount = 0
+    private var error = 0
+    private var prevError = 0
 
     override fun setView(view: MainViewInterface.View) {
         this.view = view
@@ -100,6 +105,14 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
         }.execute()
     }
 
+    override fun onSaveBtnClicked() {
+        interactor.saveNeuronWeb()
+    }
+
+    override fun onLoadBtnClicked() {
+        interactor.loadNeuronWeb()
+    }
+
     override fun onExitBtnClicked() {
         log.info("onExitBtnClicked!")
     }
@@ -126,13 +139,25 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
     }
 
     override fun networkAnswer(answer: Int, currentNumberOfImage: Int, currentNumberOfSet: Int) {
+        if (answer == currentNumberOfImage)
+            correctAnswerCount += 1
+        answerCount += 1
+
+        error = ((correctAnswerCount / answerCount.toDouble()) * 100).roundToInt()
+        view.setErrorValue("Текущая ошибка: $error%")
+
         view.updateTableItem(currentNumberOfSet, currentNumberOfImage, getStringAnswer(answer), answer == currentNumberOfImage)
     }
 
     override fun onEraChanged(currentEraNumber: Int) {
+        prevError = error
+        correctAnswerCount = 0
+        answerCount = 0
+
         view.eraseTableColor()
-        view.setStatusText("Текущая эпоха: $currentEraNumber")
-    }
+        view.setCurrentEra("Текущая эпоха: $currentEraNumber")
+        view.setPrevErrorValue("Предыдущая ошибка: $prevError%")
+}
 
     override fun loadSetCount(count: Int, setSize: Int) {
         view.setStatusText("Загрузка сета $count из $setSize")
@@ -145,6 +170,10 @@ class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presente
 
     override fun onProcessStart(setSize: Int) {
         view.setBarSize(0, setSize)
+    }
+
+    override fun onLoadedNeuronWeb() {
+        view.setStatusText("Загрузка завершена")
     }
 
     private fun getStringAnswer(answer: Int): String {

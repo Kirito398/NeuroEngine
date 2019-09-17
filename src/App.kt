@@ -2,7 +2,7 @@ import data.repositories.MainRepository
 import domain.interactors.MainInteractor
 import presentation.views.MainView
 
-fun main() {
+fun main(args: Array<String>) {
     /*val interactor = MainInteractor()
 
     interactor.showNetwork()

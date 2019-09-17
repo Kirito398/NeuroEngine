@@ -29,11 +29,16 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
     private lateinit var learningBtn: JButton
     private lateinit var loadTestSetBtn: JButton
     private lateinit var loadTrainingSetBtn: JButton
+    private lateinit var saveNeuronWebBtn: JButton
+    private lateinit var loadNeuronWebBtn: JButton
     private lateinit var exitBtn: JButton
     private lateinit var eraCountLabel: JLabel
     private lateinit var epsilonCountLabel: JLabel
     private lateinit var alphaCountLabel: JLabel
     private lateinit var statusTextLabel: JLabel
+    private lateinit var errorTextLabel: JLabel
+    private lateinit var prevErrorTextLabel: JLabel
+    private lateinit var currentEraTextLabel: JLabel
     private lateinit var epsilonCountTextField: JTextField
     private lateinit var alphaCountTextField: JTextField
     private lateinit var eraCountTextField: JTextField
@@ -52,12 +57,17 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
         learningBtn = JButton("Обучение")
         loadTestSetBtn = JButton("Загрузить тестовый набор")
         loadTrainingSetBtn = JButton("Загрузить тренировочный набор")
+        saveNeuronWebBtn = JButton("Сохранить сеть")
+        loadNeuronWebBtn = JButton("Загрузить сеть")
         exitBtn = JButton("Выход")
 
         epsilonCountLabel = JLabel("Скорость обучения:")
         alphaCountLabel = JLabel("Момент обучения:")
         eraCountLabel = JLabel("Количество эпох:")
         statusTextLabel = JLabel("")
+        errorTextLabel = JLabel("Текущая ошибка: -")
+        prevErrorTextLabel = JLabel("Предыдущая ошибка: -")
+        currentEraTextLabel = JLabel("Текущая эпоха: -")
 
         epsilonCountTextField = JTextField(epsilonCount.toString())
         alphaCountTextField = JTextField(alphaCount.toString())
@@ -65,17 +75,43 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
 
         controlPanel = JPanel()
         controlPanel.layout = GridLayout(classesCount - 1, 1, 5, 5)
+        controlPanel.run {
+            add(startBtn)
+            add(learningBtn)
+            add(loadTestSetBtn)
+            add(loadTrainingSetBtn)
+            add(saveNeuronWebBtn)
+            add(loadNeuronWebBtn)
+            add(epsilonCountLabel)
+            add(epsilonCountTextField)
+            add(alphaCountLabel)
+            add(alphaCountTextField)
+            add(eraCountLabel)
+            add(eraCountTextField)
+            add(currentEraTextLabel)
+            add(prevErrorTextLabel)
+            add(errorTextLabel)
+            add(exitBtn)
+        }
+
+        /*controlPanel = JPanel()
+        controlPanel.layout = GridLayout(classesCount - 1, 1, 5, 5)
         controlPanel.add(startBtn)
         controlPanel.add(learningBtn)
         controlPanel.add(loadTestSetBtn)
         controlPanel.add(loadTrainingSetBtn)
+        controlPanel.add(saveNeuronWebBtn)
+        controlPanel.add(loadNeuronWebBtn)
         controlPanel.add(epsilonCountLabel)
         controlPanel.add(epsilonCountTextField)
         controlPanel.add(alphaCountLabel)
         controlPanel.add(alphaCountTextField)
         controlPanel.add(eraCountLabel)
         controlPanel.add(eraCountTextField)
-        controlPanel.add(exitBtn)
+        controlPanel.add(currentEraTextLabel)
+        controlPanel.add(prevErrorTextLabel)
+        controlPanel.add(errorTextLabel)
+        controlPanel.add(exitBtn)*/
 
         progressBar = JProgressBar()
         progressPanel = JPanel()
@@ -117,6 +153,8 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
 
         loadTestSetBtn.addActionListener {presenter.onLoadTestSetBtnClicked()}
         loadTrainingSetBtn.addActionListener {presenter.onLoadTrainingSetBtnClicked()}
+        saveNeuronWebBtn.addActionListener { presenter.onSaveBtnClicked() }
+        loadNeuronWebBtn.addActionListener { presenter.onLoadBtnClicked() }
         exitBtn.addActionListener {presenter.onExitBtnClicked()}
     }
 
@@ -135,6 +173,7 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
         eraCountTextField.isEnabled = enable
         epsilonCountTextField.isEnabled = enable
         alphaCountTextField.isEnabled = enable
+        loadNeuronWebBtn.isEnabled = enable
     }
 
     override fun updateBar(newValue: Int) {
@@ -162,6 +201,7 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
         item.background = if (isCorrect) Color.GREEN else Color.RED
 
         //tableScroll.verticalScrollBar.value = tableScroll.verticalScrollBar.maximum / currentSetSize * numberOfSet
+        //tableScroll.verticalScrollBar.value = tablePanel.components[currentSetSize * (numberOfSet + 1)  + numberOfImage].y
     }
 
     override fun eraseTableColor() {
@@ -178,5 +218,17 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
         progressBar.minimum = min
         progressBar.maximum = max
         progressBar.value = min
+    }
+
+    override fun setErrorValue(value: String) {
+        errorTextLabel.text = value
+    }
+
+    override fun setPrevErrorValue(value: String) {
+        prevErrorTextLabel.text = value
+    }
+
+    override fun setCurrentEra(value: String) {
+        currentEraTextLabel.text = value
     }
 }
