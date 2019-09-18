@@ -94,25 +94,6 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
             add(exitBtn)
         }
 
-        /*controlPanel = JPanel()
-        controlPanel.layout = GridLayout(classesCount - 1, 1, 5, 5)
-        controlPanel.add(startBtn)
-        controlPanel.add(learningBtn)
-        controlPanel.add(loadTestSetBtn)
-        controlPanel.add(loadTrainingSetBtn)
-        controlPanel.add(saveNeuronWebBtn)
-        controlPanel.add(loadNeuronWebBtn)
-        controlPanel.add(epsilonCountLabel)
-        controlPanel.add(epsilonCountTextField)
-        controlPanel.add(alphaCountLabel)
-        controlPanel.add(alphaCountTextField)
-        controlPanel.add(eraCountLabel)
-        controlPanel.add(eraCountTextField)
-        controlPanel.add(currentEraTextLabel)
-        controlPanel.add(prevErrorTextLabel)
-        controlPanel.add(errorTextLabel)
-        controlPanel.add(exitBtn)*/
-
         progressBar = JProgressBar()
         progressPanel = JPanel()
         progressPanel.layout = GridLayout(2,1,5,5)
@@ -201,7 +182,7 @@ class MainView(interactor: MainInteractor) : MainViewInterface.View {
         item.background = if (isCorrect) Color.GREEN else Color.RED
 
         //tableScroll.verticalScrollBar.value = tableScroll.verticalScrollBar.maximum / currentSetSize * numberOfSet
-        //tableScroll.verticalScrollBar.value = tablePanel.components[currentSetSize * (numberOfSet + 1)  + numberOfImage].y
+        tableScroll.verticalScrollBar.value = tablePanel.components[currentSetSize * (numberOfSet + 1)  + numberOfImage].y
     }
 
     override fun eraseTableColor() {

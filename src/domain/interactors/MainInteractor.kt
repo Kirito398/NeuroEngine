@@ -17,7 +17,7 @@ class MainInteractor(private val repository: MainViewInterface.Repository) : Mai
         networkInteractor.setNetworkProcessListener(this)
         repository.setMainRepositoryListener(this)
         networkInteractor.addLayer(500,625)
-        networkInteractor.addLayer(250, 500)
+        //networkInteractor.addLayer(250, 500)
         networkInteractor.addLayer(26, 500)
     }
 

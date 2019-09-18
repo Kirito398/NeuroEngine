@@ -8,7 +8,7 @@ import java.util.logging.Logger
 import javax.swing.SwingWorker
 import kotlin.math.roundToInt
 
-class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presenter, MainPresenterListener{
+class MainPresenter(val interactor: MainInteractor) : MainViewInterface.Presenter, MainPresenterListener {
     private val log = Logger.getLogger("MainPresenter")
     private val stringAnswer = arrayListOf("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","W","Z")
     private lateinit var view: MainViewInterface.View
